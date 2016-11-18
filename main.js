@@ -1,144 +1,46 @@
 var express = require('express');
-var mysql   = require("mysql");
-var rest = require("./REST.js");
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
 var index = require('./routes/index');
 var users = require('./routes/users');
+
 var app = express();
-var debug = require('debug')('challenge:server');
-var http = require('http');
 
-/**
- * Get port from environment and store in Express.
- */
+// view engine setup
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
+//
+// // uncomment after placing your favicon in /public
+// //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(logger('dev'));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(cookieParser());
+// app.use(express.static(path.join(__dirname, 'public')));
+//
+// app.use('/', index);
+// app.use('/users', users);
+//
+// // catch 404 and forward to error handler
+// app.use(function(req, res, next) {
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+// });
+//
+// // error handler
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
-
-function REST(){
-    var self = this;
-    self.connectMysql();
-};
-
-REST.prototype.connectMysql = function() {
-    var self = this;
-    var pool      =    mysql.createPool({
-        connectionLimit : 100,
-        // host     : 'localhost',
-        host     : 'test.cyi0mf0fvx9m.us-west-2.rds.amazonaws.com',
-        user     : 'len',
-        password : 'lianlian',
-        // user     : 'root',
-        // password : 'root',
-        port     : '3306',
-        database : 'users',
-        debug    :  false
-    });
-    pool.getConnection(function(err,connection){
-        if(err) {
-          self.stop(err);
-        } else {
-          self.configureExpress(connection);
-        }
-    });
-}
-
-REST.prototype.configureExpress = function(connection) {
-      var self = this;
-      app.use(bodyParser.urlencoded({ extended: true }));
-      app.use(bodyParser.json());
-      var router = express.Router();
-      app.use('/', router);
-      app.use('/api', router);
-      var rest_router = new rest(router,connection);
-      self.startServer();
-}
-
-REST.prototype.startServer = function() {
-      server.listen(port);
-      server.on('error', onError);
-      server.on('listening', onListening);
-}
-
-REST.prototype.stop = function(err) {
-    console.log("ISSUE WITH MYSQL n" + err);
-    process.exit(1);
-}
-
-new REST();
+module.exports = app;
